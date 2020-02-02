@@ -21,7 +21,7 @@ reset:
 		ldi r16, low(RAMEND)
 		out spl, r16
 
-		ldi r16, low(RAMEND)
+		ldi r16, high(RAMEND)
 		out sph, r16
 
 ; Read variable
