@@ -14,7 +14,7 @@
 	rjmp reset
 
 reset:
-	rjmp reset
+	rjmp pc
 
 ;****************************************************************
 ; Eeprom Data
