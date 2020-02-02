@@ -23,6 +23,17 @@
 .endm
 
 ;****************************************************************
+; Universal port input
+;****************************************************************
+.macro uin
+.if		@1 < 0x40		; check in register address
+		in	@0, @1		; in operation if address less than 0x40
+.else
+		lds	@0, @1		; lds operation if address more or equal 0x40
+.endif
+.endm
+
+;****************************************************************
 ; LDI low register
 ;****************************************************************
 .macro ldil
