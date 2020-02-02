@@ -1,6 +1,17 @@
 ;****************************************************************
 
 ;****************************************************************
+; Setup stack pointer
+;****************************************************************
+.macro sset
+		ldi r16, low(@0); load to r16 low address of stack begin
+		out spl, r16	; store it to stack pointer low
+
+		ldi r16, high(@0); load to r16 high address of stack begin
+		out sph, r16	; store it to stack pointer high
+.endm
+
+;****************************************************************
 ; Universal port output
 ;****************************************************************
 .macro uout
