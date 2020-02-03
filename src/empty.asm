@@ -40,6 +40,7 @@
 		reti 		;		rjmp SPM_RDY ; Store Program Memory Ready Handler
 reset:
 		sset RAMEND
+		regram_clear SRAM_START, RAMEND+1
 start:
 
 		rjmp pc

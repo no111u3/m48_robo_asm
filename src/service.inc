@@ -12,6 +12,32 @@
 .endm
 
 ;****************************************************************
+; Setup registers and ram
+;****************************************************************
+.macro regram_clear
+; Clearing RAM
+		ldi zl, low(@0)	; Begin clearing RAM address
+		ldi zh, high(@0)
+		clr r16			; clear r16
+Flush:
+		st z+, r16		; store 0 to memory address
+		cpi zh, high(@1); compare with high address of end RAM
+		brne Flush
+
+		cpi zl, low(@1)	; compare with low address of end RAM
+		brne Flush
+
+		clr zl
+		clr zh
+; Clearing registers
+		ldi zl, 30		; Address of higher register
+		clr zh
+		dec zl			; decrementing address
+		st z, zh		; store 0 to register
+		brne pc-2
+.endm
+
+;****************************************************************
 ; Universal port output
 ;****************************************************************
 .macro uout
