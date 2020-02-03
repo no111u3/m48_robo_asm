@@ -42,7 +42,7 @@ reset:
 		sset RAMEND
 		regram_clear SRAM_START, RAMEND+1
 start:
-; Internale hardware init =======================================
+; Internal hardware init ========================================
 ;================================================================
 
 ; Eternal hardware init =========================================
