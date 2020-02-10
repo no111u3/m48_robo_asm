@@ -1,0 +1,88 @@
+
+AVRA   Ver. 1.4.1 src/mem_test.asm Mon Feb 10 13:58:18 2020
+
+
+         ;****************************************************************
+          .include "m48def.inc"
+         ;***** THIS IS A MACHINE GENERATED FILE - DO NOT EDIT ********************
+         ;***** Created: 2005-01-11 10:31 ******* Source: ATmega48.xml ************
+         ;*************************************************************************
+         ;* A P P L I C A T I O N   N O T E   F O R   T H E   A V R   F A M I L Y
+         ;* 
+         ;* Number            : AVR000
+         ;* File Name         : "m48def.inc"
+         ;* Title             : Register/Bit Definitions for the ATmega48
+         ;* Date              : 2005-01-11
+         ;* Version           : 2.14
+         ;* Support E-mail    : avr@atmel.com
+         ;* Target MCU        : ATmega48
+         ;* 
+         ;* DESCRIPTION
+         ;* When including this file in the assembly program file, all I/O register 
+         ;* names and I/O register bit names appearing in the data book can be used.
+         ;* In addition, the six registers forming the three data pointers X, Y and 
+         ;* Z have been assigned names XL - ZH. Highest RAM address for Internal 
+         ;* SRAM is also defined 
+         ;* 
+         ;* The Register names are represented by their hexadecimal address.
+         ;* 
+         ;* The Register Bit names are represented by their bit number (0-7).
+         ;* 
+         ;* Please observe the difference in using the bit names with instructions
+         ;* such as "sbr"/"cbr" (set/clear bit in register) and "sbrs"/"sbrc"
+         ;* (skip if bit in register set/cleared). The following example illustrates
+         ;* this:
+         ;* 
+         ;* in    r16,PORTB             ;read PORTB latch
+         ;* sbr   r16,(1<<PB6)+(1<<PB5) ;set PB6 and PB5 (use masks, not bit#)
+         ;* out   PORTB,r16             ;output to PORTB
+         ;* 
+         ;* in    r16,TIFR              ;read the Timer Interrupt Flag Register
+         ;* sbrc  r16,TOV0              ;test the overflow flag (use bit#)
+         ;* rjmp  TOV0_is_set           ;jump if set
+         ;* ...                         ;otherwise do something else
+         ;*************************************************************************
+         
+          #ifndef _M48DEF_INC_
+          #endif  /* _M48DEF_INC_ */
+         
+         ; ***** END OF FILE ******************************************************
+          ; ***** END OF FILE ******************************************************
+         
+         ;****************************************************************
+         ; Data
+         ;****************************************************************
+          .dseg
+          .org 0x100 ; because avra ignores device specific segment placement address
+          data:
+D:000100    	.byte 2
+         
+         ;****************************************************************
+         ; Code
+         ;****************************************************************
+          .cseg
+C:000000 c000      	rjmp reset
+         
+          reset:
+C:000001 9100 0100 		lds r16, data
+C:000003 9110 0101 		lds r17, data+1
+C:000005 9300 0100 		sts data, r16
+C:000007 9310 0101 		sts data+1, r17
+         
+         
+C:000009 cfff      		rjmp pc
+         
+         ;****************************************************************
+         ; Eeprom Data
+         ;****************************************************************
+          .eseg
+Used memory blocks:
+   code      :  Start = 0x0000, End = 0x0009, Length = 0x000A (10 words), Overlap=N
+
+
+Segment usage:
+   Code      :        10 words (20 bytes)
+   Data      :         2 bytes
+   EEPROM    :         0 bytes
+
+Assembly completed with no errors.
