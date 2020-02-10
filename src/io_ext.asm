@@ -3,17 +3,23 @@
 .include "service.inc"
 
 .macro incr
-		ldi r16, 1
-		ldi r17, 0
-		add @0, r16
-		adc @1, r17
-		adc @2, r17
+		lds r16, @0
+		lds r17, @0+1
+
+		subi r16,(-1)
+		sbci r17,(-1)
+
+		sts @0, r16
+		sts @0+1, r17
 .endm
 
 ;****************************************************************
 ; Data
 ;****************************************************************
 .dseg
+.org SRAM_START ; because avra ignores device specific segment placement address
+counter:
+	.byte 2
 ;****************************************************************
 ; Code
 ;****************************************************************
@@ -63,10 +69,6 @@ start:
 ;================================================================
 
 ; Main ==========================================================
-		clr r16
-		mov r19, r16
-		mov r20, r16
-		mov r21, r16
 Main:
 		sbis pinc, 3	; check button if pressed
 		rjmp BT_Push	; jump to push button handler
@@ -74,9 +76,12 @@ Main:
 		setb PORTC, 5, r16	; Enable led 1
 
 Next:
-		cpi r19, 0x0 ; Compare by byte
+		lds r16, counter
+		lds r17, counter+1
+
+		cpi r16, 0x0 ; Compare by byte
 		brne NoMatch
-		cpi r20, 0x0
+		cpi r17, 0x0
 		brne NoMatch
 
 Match:
@@ -84,7 +89,7 @@ Match:
 
 NoMatch:
 		nop
-		incr r19, r20, r21
+		incr counter
 
 		rjmp Main
 
