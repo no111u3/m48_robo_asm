@@ -5,7 +5,7 @@
 ; Data
 ;****************************************************************
 .dseg
-.org 0x100 ; because avra ignores device specific segment placement address
+.org SRAM_START ; because avra ignores device specific segment placement address
 data:
 	.byte 2
 

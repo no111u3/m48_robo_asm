@@ -6,6 +6,7 @@
 ; Data
 ;****************************************************************
 .dseg
+.org SRAM_START ; because avra ignores device specific segment placement address
 variables:		.byte 3
 variables2:		.byte 1
 ;****************************************************************

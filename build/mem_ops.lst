@@ -1,0 +1,299 @@
+
+AVRA   Ver. 1.4.1 src/mem_ops.asm Mon Feb 10 14:06:11 2020
+
+
+         ;****************************************************************
+          .include "m48def.inc"
+         ;***** THIS IS A MACHINE GENERATED FILE - DO NOT EDIT ********************
+         ;***** Created: 2005-01-11 10:31 ******* Source: ATmega48.xml ************
+         ;*************************************************************************
+         ;* A P P L I C A T I O N   N O T E   F O R   T H E   A V R   F A M I L Y
+         ;* 
+         ;* Number            : AVR000
+         ;* File Name         : "m48def.inc"
+         ;* Title             : Register/Bit Definitions for the ATmega48
+         ;* Date              : 2005-01-11
+         ;* Version           : 2.14
+         ;* Support E-mail    : avr@atmel.com
+         ;* Target MCU        : ATmega48
+         ;* 
+         ;* DESCRIPTION
+         ;* When including this file in the assembly program file, all I/O register 
+         ;* names and I/O register bit names appearing in the data book can be used.
+         ;* In addition, the six registers forming the three data pointers X, Y and 
+         ;* Z have been assigned names XL - ZH. Highest RAM address for Internal 
+         ;* SRAM is also defined 
+         ;* 
+         ;* The Register names are represented by their hexadecimal address.
+         ;* 
+         ;* The Register Bit names are represented by their bit number (0-7).
+         ;* 
+         ;* Please observe the difference in using the bit names with instructions
+         ;* such as "sbr"/"cbr" (set/clear bit in register) and "sbrs"/"sbrc"
+         ;* (skip if bit in register set/cleared). The following example illustrates
+         ;* this:
+         ;* 
+         ;* in    r16,PORTB             ;read PORTB latch
+         ;* sbr   r16,(1<<PB6)+(1<<PB5) ;set PB6 and PB5 (use masks, not bit#)
+         ;* out   PORTB,r16             ;output to PORTB
+         ;* 
+         ;* in    r16,TIFR              ;read the Timer Interrupt Flag Register
+         ;* sbrc  r16,TOV0              ;test the overflow flag (use bit#)
+         ;* rjmp  TOV0_is_set           ;jump if set
+         ;* ...                         ;otherwise do something else
+         ;*************************************************************************
+         
+          #ifndef _M48DEF_INC_
+          #endif  /* _M48DEF_INC_ */
+         
+         ; ***** END OF FILE ******************************************************
+          ; ***** END OF FILE ******************************************************
+          .include "service.inc"
+         ;****************************************************************
+         
+         ;****************************************************************
+         ; Setup stack pointer
+         ;****************************************************************
+          .macro sset
+          		ldi r16, low(@0); load to r16 low address of stack begin
+          		out spl, r16	; store it to stack pointer low
+          
+          		ldi r16, high(@0); load to r16 high address of stack begin
+          		out sph, r16	; store it to stack pointer high
+          .endm
+         
+         ;****************************************************************
+         ; Setup registers and ram
+         ;****************************************************************
+          .macro regram_clear
+         ; Clearing RAM
+          		ldi zl, low(@0)	; Begin clearing RAM address
+          		ldi zh, high(@0)
+          		clr r16			; clear r16
+          Flush:
+          		st z+, r16		; store 0 to memory address
+          		cpi zh, high(@1); compare with high address of end RAM
+          		brne Flush
+          
+          		cpi zl, low(@1)	; compare with low address of end RAM
+          		brne Flush
+          
+          		clr zl
+          		clr zh
+         ; Clearing registers
+          		ldi zl, 30		; Address of higher register
+          		clr zh
+          		dec zl			; decrementing address
+          		st z, zh		; store 0 to register
+          		brne pc-2
+          .endm
+         
+         ;****************************************************************
+         ; Universal port output
+         ;****************************************************************
+          .macro uout
+          .if		@0 < 0x40		; check out register address
+          		out	@0, @1		; out operation if address less than 0x40
+          .else
+          		sts	@0, @1		; sts operation if address more or equal 0x40
+          .endif
+          .endm
+         
+         ;****************************************************************
+         ; Universal port input
+         ;****************************************************************
+          .macro uin
+          .if		@1 < 0x40		; check in register address
+          		in	@0, @1		; in operation if address less than 0x40
+          .else
+          		lds	@0, @1		; lds operation if address more or equal 0x40
+          .endif
+          .endm
+         
+         ;****************************************************************
+         ; Set bit with stack
+         ;****************************************************************
+          .macro setbm
+          .if		@0 < 0x20
+          		sbi @0, @1
+          .else
+          		push r17
+          		uin r17, @0
+          		ori r17, 1 << @1
+          		uout @0, r17
+          		pop r17
+          .endif
+          .endm
+         
+         ;****************************************************************
+         ; Set bit with reg
+         ;****************************************************************
+          .macro setb
+          .if		@0 < 0x20
+          		sbi @0, @1
+          .else
+          		uin @2, @0
+          		ori @2, 1 << @1
+          		uout @0, @2
+          .endif
+          .endm
+         
+         ;****************************************************************
+         ; Clear bit with stack
+         ;****************************************************************
+          .macro clrbm
+          .if		@0 < 0x20
+          		cbi @0, @1
+          .else
+          		push r17
+          		uin r17, @0
+          		andi r17, ~(1 << @1)
+          		uout @0, r17
+          		pop r17
+          .endif
+          .endm
+         
+         ;****************************************************************
+         ; Clear bit with reg
+         ;****************************************************************
+          .macro clrb
+          .if		@0 < 0x20
+          		cbi @0, @1
+          .else
+          		uin @2, @0
+          		andi @2, ~(1 << @1)
+          		uout @0, @2
+          .endif
+          .endm
+         
+         ;****************************************************************
+         ; Invert bit with stack
+         ;****************************************************************
+          .macro invbm
+          		push r16
+          		push r17
+          		uin r16, @0
+          		ldi r17, 1 << @1
+          		eor r17, r16
+          		uout @0, r17
+          		pop r17
+          		pop r16
+          .endm
+         
+         ;****************************************************************
+         ; Invert bit with reg
+         ;****************************************************************
+          .macro invb
+          		uin @2, @0
+          		ldi @3, 1 << @1
+          		eor @3, @2
+          		uout @0, @3
+          .endm
+         
+         ;****************************************************************
+         ; LDI low register
+         ;****************************************************************
+          .macro ldil
+          		push r17		; load higher register to stack
+          		ldi r17, @1		; load value to it
+          		mov @0, r17		; move from it to needed register
+          		pop r17			; restore it value
+          .endm
+         
+         ;****************************************************************
+         ; Data
+         ;****************************************************************
+          .dseg
+          .org SRAM_START ; because avra ignores device specific segment placement address
+D:000100    variables:		.byte 3
+D:000103    variables2:		.byte 1
+         ;****************************************************************
+         ; Code
+         ;****************************************************************
+          .cseg
+         
+          .org 0x000
+C:000000 c000      		rjmp reset
+         
+          reset:
+         ; Initialization of stack
+C:000001 ef0f      		ldi r16, low(RAMEND)
+C:000002 bf0d      		out spl, r16
+         
+C:000003 e002      		ldi r16, high(RAMEND)
+C:000004 bf0e      		out sph, r16
+         
+         ; Read variable
+C:000005 9100 0100 		lds r16, variables 		; first byte
+C:000007 9110 0101 		lds r17, variables+1	; second byte
+C:000009 9120 0102 		lds r18, variables+2	; third byte
+         
+         ; AVR doesn't can adding the constant (only substraction)
+C:00000b 5f0f      		subi r16,(-1)
+C:00000c 4f1f      		sbci r17,(-1)
+C:00000d 4f2f      		sbci r18,(-1)
+         
+C:00000e 9300 0100 		sts variables, r16
+C:000010 9310 0101 		sts variables+1, r17
+C:000012 9320 0102 		sts variables+2, r18
+         
+         ; Second method of calc
+         ; Read variable address to Y register
+C:000014 e0c0      		ldi yl, low(variables)
+C:000015 e0d1      		ldi yh, high(variables)
+         
+         ; Load variables with incrementing address
+C:000016 9109      		ld r16, y+
+C:000017 9119      		ld r17, y+
+C:000018 9129      		ld r18, y+
+         
+         ; AVR doesn't can adding the constant (only substraction)
+C:000019 5f0f      		subi r16,(-1)
+C:00001a 4f1f      		sbci r17,(-1)
+C:00001b 4f2f      		sbci r18,(-1)		
+         
+         ; Reverse store variables with decrementing address
+C:00001c 932a      		st -y, r18
+C:00001d 931a      		st -y, r17
+C:00001e 930a      		st -y, r16
+         
+C:00001f e013      		ldi r17, variables2
+C:000020 931f      		push r17
+C:000021 900f      		pop r0
+         
+C:000022   +  		ldil r0, 18
+C:000022 931f      push r17		
+
+C:000023 e112      ldi r17, 18		
+
+C:000024 2e01      mov r0, r17		
+
+C:000025 911f      pop r17			
+
+         
+         ; Load variable from program memory (mul 2 because address in program words)
+C:000026 e5e4      		ldi zl, low(data*2)
+C:000027 e0f0      		ldi zh, high(data*2)
+         
+C:000028 9104      		lpm r16, z
+         
+C:000029 cfff      		rjmp pc
+         
+          data:
+          		.db 12, 34, 45, 23
+C:00002A 0C222D17
+         
+         ;****************************************************************
+         ; Eeprom Data
+         ;****************************************************************
+          .eseg
+Used memory blocks:
+   code      :  Start = 0x0000, End = 0x002B, Length = 0x002C (44 words), Overlap=N
+
+
+Segment usage:
+   Code      :        44 words (88 bytes)
+   Data      :         4 bytes
+   EEPROM    :         0 bytes
+
+Assembly completed with no errors.
