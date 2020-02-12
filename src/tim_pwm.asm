@@ -38,9 +38,9 @@ tcnt:
 		reti 		;		rjmp TIM2_COMPB ; Timer2 Compare B Handler
 		reti 		;		rjmp TIM2_OVF ; Timer2 Overflow Handler
 		reti 		;		rjmp TIM1_CAPT ; Timer1 Capture Handler
-		reti 		;		rjmp TIM1_COMPA ; Timer1 Compare A Handler
+		rjmp TIM1_COMPA ; Timer1 Compare A Handler
 		reti 		;		rjmp TIM1_COMPB ; Timer1 Compare B Handler
-		reti 		;		rjmp TIM1_OVF ; Timer1 Overflow Handler
+		rjmp TIM1_OVF ; Timer1 Overflow Handler
 		reti 		;		rjmp TIM0_COMPA ; Timer0 Compare A Handler
 		reti 		;		rjmp TIM0_COMPB ; Timer0 Compare B Handler
 		rjmp TIM0_OVF ; Timer0 Overflow Handler
@@ -56,6 +56,8 @@ tcnt:
 
 ; Timer0 Overflow Handler =======================================
 TIM0_OVF:
+		sei
+
 		pushf
 		push r17
 
@@ -66,14 +68,26 @@ TIM0_OVF:
 
 		reti
 
+; Timer1 Overflow Handler =======================================
+TIM1_OVF:
+		sbi PORTB, 1
+
+		reti
+
+; Timer1 Compare A Handler ======================================
+TIM1_COMPA:
+		cbi PORTB, 1
+
+		reti
+
 reset:
 		sset RAMEND
 		regram_clear SRAM_START, RAMEND+1
 start:
 ; Internal hardware init ========================================
 
-		setb DDRB, 3, r16	; DDRD.3 = 1
-		setb DDRB, 2, r16	; DDRD.2 = 1
+		setb DDRB, 1, r16	; DDRB.1 = 1
+		setb DDRB, 2, r16	; DDRB.2 = 1
 
 		setb PORTC, 3, r16	; PORC.3 = 1
 		clrb DDRC, 3, r16	; DDRC.3 = 0
@@ -83,13 +97,17 @@ start:
 		ldi r16, 1 << CS00 ; Start Timer0, prescale to 1.
 		uout TCCR0B, r16
 
-; Setup output OC** down with compare for two channels.
-; COM1A = 10 and COM1B = 10
+; Setup output OC** down with compare for one channel.
+; COM1B = 10
 ; Mode - Fast PWM 8bit
 ; Prescale - same as MSC
 
-		outi TCCR1A, r16, 2 << COM1A0 | 2 << COM1B0 | 0 << WGM11 | 1 << WGM10
+		outi TCCR1A, r16, 0 << COM1A0 | 2 << COM1B0 | 0 << WGM11 | 1 << WGM10
 		outi TCCR1B, r16, 0 << WGM13 | 1 << WGM12 | 1 << CS10
+
+; Enable interrupts for compare with first channel and tim cnt overflow
+		setb TIMSK1, OCIE1A, r16
+		setb TIMSK1, TOIE1, r16
 
 		outi OCR1AH, r16, 0
 		outi OCR1AL, r16, 85
