@@ -45,7 +45,7 @@ reset:
 start:
 ; Internal hardware init ========================================
 		.equ XTAL = 8000000
-		.equ baudrate = 38400
+		.equ baudrate = 19200
 		.equ bauddivider = XTAL / 16 / baudrate-1
 
 uart_init:
