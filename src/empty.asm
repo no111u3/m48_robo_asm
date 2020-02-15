@@ -12,6 +12,8 @@
 ; Code
 ;****************************************************************
 .cseg
+
+; Interrupt vector table ========================================
 .org 0x000
 		rjmp reset 	; Reset Handler
 		reti 		;		rjmp EXT_INT0 ; IRQ0 Handler
@@ -39,10 +41,12 @@
 		reti 		;		rjmp ANA_COMP ; Analog Comparator Handler
 		reti 		;		rjmp TWI ; 2-wire Serial Interface Handler
 		reti 		;		rjmp SPM_RDY ; Store Program Memory Ready Handler
+
+
+; Reset Handler =================================================
 reset:
-		sset RAMEND
-		regram_clear SRAM_START, RAMEND+1
-start:
+		sset RAMEND ; Setup stack to the end of ram
+		regram_clear SRAM_START, RAMEND+1 ; Clear ram and registers
 ; Internal hardware init ========================================
 ;================================================================
 
@@ -50,7 +54,9 @@ start:
 ;================================================================
 
 ; Run ===========================================================
+start:
 
+; Infinity end loop =============================================
 		rjmp pc
 ;================================================================
 
