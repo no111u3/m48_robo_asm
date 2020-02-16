@@ -1,30 +1,9 @@
 ;*************************************************************
-; Bin to hex conversion (8/16/24/32 bit value to be converted)
+; Bin to hex conversion (8 bit value to be converted)
 ; @0 - store input byte
 ; @1 - output byte function
-; @2 - store input 2nd byte
-; @3 - store output 3rd byte
-; @4 - store output 4th byte
 ;*************************************************************
 .macro bin_to_hex_m
-bin_to_hex32:
-		push @0
-		mov @0, @4
-		rcall bin_to_hex
-		pop @0
-
-bin_to_hex24:
-		push @0
-		mov @0, @3
-		rcall bin_to_hex
-		pop @0
-
-bin_to_hex16:
-		push @0
-		mov @0, @2
-		rcall bin_to_hex
-		pop @0
-
 bin_to_hex:
 		swap @0			; swap nibbles because output in inverted order
 		rcall bin_to_hex_convert ; calling conversion for high nibble
@@ -45,6 +24,19 @@ non_high_10:
 			ret
 .endm
 
+;*************************************************************
+; Bin to hex conversion append (n*8 bit value to be converted)
+; @0 - store input byte
+; @1 - hex conversion function
+; @2 - append register input Nth byte
+;*************************************************************
+.macro bin_to_hex_append_m
+		push @0
+		mov @0, @2
+		rcall @1
+		pop @0
+.endm
+
 ;****************************************************************
 ; Uart blocking send byte
 ; @0 - output byte
@@ -54,7 +46,7 @@ non_high_10:
 uart_snd_b:
 		uin @1, UCSR0A
 		sbrs @1, UDRE0		; Skip if not ready to receive
-		rjmp uart_snt
+		rjmp uart_snd_b
 
 		uout UDR0, @0			; send byte
 
@@ -89,6 +81,8 @@ uart_snd_sb:
 		breq stop_transmit
 
 		rcall @2; send byte trough function
+
+		rjmp uart_snd_sb
 
 stop_transmit:
 		ret
