@@ -1,27 +1,48 @@
 ;*************************************************************
-; Bin to hex conversion
+; Bin to hex conversion (8/16/24/32 bit value to be converted)
 ; @0 - store input byte
 ; @1 - output byte function
+; @2 - store input 2nd byte
+; @3 - store output 3rd byte
+; @4 - store output 4th byte
 ;*************************************************************
 .macro bin_to_hex_m
+bin_to_hex32:
+		push @0
+		mov @0, @4
+		rcall bin_to_hex
+		pop @0
+
+bin_to_hex24:
+		push @0
+		mov @0, @3
+		rcall bin_to_hex
+		pop @0
+
+bin_to_hex16:
+		push @0
+		mov @0, @2
+		rcall bin_to_hex
+		pop @0
+
 bin_to_hex:
-	swap @0			; swap nibbles because output in inverted order
-	rcall bin_to_hex_convert ; calling conversion for high nibble
-	swap @0			; swap nibbles for conversion lower nibble
+		swap @0			; swap nibbles because output in inverted order
+		rcall bin_to_hex_convert ; calling conversion for high nibble
+		swap @0			; swap nibbles for conversion lower nibble
 
 bin_to_hex_convert:
-	push @0
-	andi @0, 0x0f	; clear high nibble
-	cpi @0, 10		; check for lower than 10 (0xa)
-	brcs non_high_10
-	subi @0, -7		; add 7 to change from digit to letter
+		push @0
+		andi @0, 0x0f	; clear high nibble
+		cpi @0, 10		; check for lower than 10 (0xa)
+		brcs non_high_10
+		subi @0, -7		; add 7 to change from digit to letter
 
 non_high_10:
-	subi @0, -0x30	; add 0x30 for start from '0'
-	rcall @1		; calling output function @0 store current digit
-	pop @0
+		subi @0, -0x30	; add 0x30 for start from '0'
+		rcall @1		; calling output function @0 store current digit
+		pop @0
 
-	ret
+			ret
 .endm
 
 ;****************************************************************
