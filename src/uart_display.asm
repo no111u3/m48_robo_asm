@@ -81,10 +81,25 @@ start:
 
 		uart_snd_sbh_m Z, new_line, uart_snds
 
+		uart_snd_sbh_m Z, dec_display, uart_snds
+		ldi r16, 0x42
+		clr r22
+		rcall bin_2_dec8
+
+		uart_snd_sbh_m Z, new_line, uart_snds
+
 		uart_snd_sbh_m Z, hex_display_word, uart_snds
 		ldi r16, 0x34
 		ldi r17, 0x25
 		rcall bin_2_hex16
+
+		uart_snd_sbh_m Z, new_line, uart_snds
+
+		uart_snd_sbh_m Z, dec_display_word, uart_snds
+		ldi r16, 0x34
+		ldi r17, 0x25
+		clr r22
+		rcall bin_2_dec16
 
 		uart_snd_sbh_m Z, new_line, uart_snds
 
@@ -128,12 +143,21 @@ bin_to_hex_append_m r16, bin_2_hex8, r17
 bin_2_hex8:		; display 8-bit hex
 bin_to_hex_m r16, uart_snd
 
+bin_2_dec8:		; display 8-bit dec
+	clr r17
+bin_2_dec16:	; display 16-bit dec
+bin_to_dec_m r16, r17, r18, r19, r20, r22, uart_snd
+
 start_msg:
 	.db "Display format demo", 0xd, 0xa, 0
 hex_display:
 	.db "Display byte as hex: 0x", 0
+dec_display:
+	.db "Display byte as dec: ", 0
 hex_display_word:
 	.db "Display word as hex: 0x", 0
+dec_display_word:
+	.db "Display word as dec: ", 0
 hex_display_3bytes:
 	.db "Display 3 bytes as hex: 0x", 0
 hex_display_dword:
