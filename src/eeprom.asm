@@ -12,10 +12,9 @@
 
 		outi UCSR0B, @0, 1 << RXEN0 | 1 << TXEN0 | 1 << RXCIE0 | 1 << TXCIE0 | 1 << UDRIE0
 
-wait:
 		uin r17, UCSR0B
 		sbrc r17, UDRIE0		; Skip if not ready to transmit
-		rjmp wait
+		rjmp pc-3
 .endm
 
 

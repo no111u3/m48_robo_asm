@@ -54,7 +54,7 @@ start:
 		lpm r20, z+ ; load to r20 address from table
 		lpm r21, z
 
-		movw zh:zl,r21:r20 ; store address to Z
+		movw zl, r20 ; store address to Z
 
 		ijmp		; jump to needed selector
 

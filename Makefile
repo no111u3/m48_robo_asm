@@ -1,6 +1,5 @@
 %: src/%.asm
-	avra -I src $< -o build/$@.hex -e build/$@.eep.hex
-	rm src/$@.obj
+	avra-rs -s $< -o build/$@.hex -e build/$@.eep.hex
 
 %_lst: src/%.asm
 	avra -I src $< -o build/$@.hex -e build/$@.eep.hex -l build/$@.lst

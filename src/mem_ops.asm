@@ -59,7 +59,7 @@ reset:
 		st -y, r17
 		st -y, r16
 
-		ldi r17, variables2
+		ldi r17, low(variables2)
 		push r17
 		pop r0
 
