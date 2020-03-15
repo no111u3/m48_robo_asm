@@ -8,6 +8,9 @@
 %_write: build/%.hex
 	avrdude -c ft232r -p m48 -b2400 -U flash:w:$<:a
 
+%_write_eeprom: build/%.eep.hex
+	avrdude -c ft232r -p m48 -b2400 -U eeprom:w:$<:a
+
 erase:
 	avrdude -c ft232r -p m48 -b2400 -e
 
