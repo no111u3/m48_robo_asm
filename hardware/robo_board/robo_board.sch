@@ -779,8 +779,6 @@ Entry Wire Line
 	5000 4450 5100 4550
 Entry Wire Line
 	5000 4550 5100 4650
-Entry Wire Line
-	5000 4650 5100 4750
 Wire Wire Line
 	4800 2250 5000 2250
 Wire Wire Line
@@ -811,8 +809,6 @@ Wire Wire Line
 	4800 4450 5000 4450
 Wire Wire Line
 	4800 4550 5000 4550
-Wire Wire Line
-	4800 4650 5000 4650
 Entry Wire Line
 	5900 4250 6000 4350
 Wire Wire Line
@@ -1100,6 +1096,7 @@ Wire Wire Line
 	7300 4000 7150 4000
 Wire Wire Line
 	6850 4000 6000 4000
+NoConn ~ 4800 4650
 Wire Bus Line
 	600  4950 600  7550
 Wire Bus Line
