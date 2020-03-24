@@ -624,8 +624,6 @@ RESET
 Entry Wire Line
 	5900 3850 6000 3950
 Wire Wire Line
-	7300 4000 6000 4000
-Wire Wire Line
 	6000 4000 6000 3950
 Text Label 6050 4000 0    50   ~ 0
 RESET
@@ -1087,6 +1085,21 @@ Wire Wire Line
 Connection ~ 1700 2150
 Wire Wire Line
 	1700 2750 1700 2900
+$Comp
+L Device:R R110
+U 1 1 5E7BC377
+P 7000 4000
+F 0 "R110" V 6793 4000 50  0000 C CNN
+F 1 "4.7k" V 6884 4000 50  0000 C CNN
+F 2 "" V 6930 4000 50  0001 C CNN
+F 3 "~" H 7000 4000 50  0001 C CNN
+	1    7000 4000
+	0    1    1    0   
+$EndComp
+Wire Wire Line
+	7300 4000 7150 4000
+Wire Wire Line
+	6850 4000 6000 4000
 Wire Bus Line
 	600  4950 600  7550
 Wire Bus Line
