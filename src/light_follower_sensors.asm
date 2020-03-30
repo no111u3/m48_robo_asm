@@ -45,6 +45,14 @@ reset_handler:
 		outir UCSR0B, r16, 1 << RXEN0 | 1 << TXEN0 | 1 << RXCIE0 | 1 << TXCIE0 | 0 << UDRIE0
 ; Frame format - 8 bit
 		outir UCSR0C, r16, 1 << UCSZ00 | 1 << UCSZ01
+
+; ADC setup
+; REFS0 - reference from AVcc with external capacitor at AREF pin
+; ADLAR - left adjust result
+; MUX0 = 0 - channel 0 selected
+		outir ADMUX, r16, 1 << REFS0 | 1 << ADLAR | 0 << MUX0
+
+		sei
 ;==============================================================================
 
 ; Eternal hardware init =======================================================
