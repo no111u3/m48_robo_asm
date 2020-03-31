@@ -2,6 +2,7 @@
 .include "m48def.inc"
 .include "std/io.inc"
 .include "std/ram.inc"
+.include "std/serial.inc"
 .include "std/stack.inc"
 .include "std/vectors.inc"
 
@@ -111,6 +112,7 @@ reset_handler:
 
 ; Run =========================================================================
 start:
+		uart_sends_invoke uart_sends, start_msg
 ; ADC init
 ; ADEN - enable ADC
 ; ADIE - allow interrupts
@@ -120,7 +122,21 @@ start:
 ; Infinity end loop ===========================================================
 		rjmp pc
 ;==============================================================================
+; uart send byte function
+uart_sendb:
+uart_sendb_def r16, r21
+; uart send string function
+uart_sends:
+uart_send_fstring_def r16, uart_sendb
 
+start_msg:
+	.db "Light Follower Sensors demo", 0xd, 0xa, 0
+channel_sel_msg:
+	.db "ADC channels values: ", 0
+channel_sel_msg_2:
+	.db ", ", 0
+new_line:
+	.db 0xd, 0xa, 0
 ;******************************************************************************
 ; Eeprom Data
 ;******************************************************************************
