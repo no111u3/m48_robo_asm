@@ -19,7 +19,58 @@ adc_channels:
 
 ; Interrupt vector table ======================================================
 .define reti_dummy_use
+.define ADCC_int
 		int_vectors
+
+; ADC Conversion Complete Handler ===============================
+ADCC_handler:
+		pushr16sr
+		push zl
+		push zh
+		push r17
+
+		uin r16, ADMUX		; Get value from ADMUX
+		andi r16, 0x07		; Clear not mux bits
+
+		mov r17, r16		; Store selected channel copy
+
+		ldi zl, low(adc_channels)	; Get address of ADC channel storage
+		ldi zh, high(adc_channels)
+
+		add zl, r16			; Add channel number to pointer
+
+		clr r16				; we get a flag but value not needed
+
+		adc zh, r16			; Add higher part of pointer
+
+		uin r16, ADCL		; lower part of ADC value not needed
+							; but need to read it
+		uin r16, ADCH		; higher part of ADC value used
+		st z, r16			; store it to pointer
+
+		uin r16, ADMUX		; get ADMUX value
+		andi r16, 0xf8		; but clear channel part
+
+		inc r17				; increment channel number
+
+		cpi r17, 0x6		; compare channel number with limit
+		brlo no_clear		; if number great or equal 6, clear channel number
+		clr r17
+
+no_clear:
+		andi r17, 0x7		; clear not needed part of bits
+		or r16, r17			; add channel number to ADMUX configuration
+		uout ADMUX, r16		; and store in to ADMUX
+
+; start ADC conversion
+		outir ADCSRA, r16, 1 << ADEN | 1 << ADIE | 1 << ADSC | 0 << ADATE | 3 << ADPS0
+; restore registers, flags and exit
+		pop r17
+		pop zh
+		pop zl
+		popr16sr
+
+		reti
 
 ; Reset Handler ===============================================================
 reset_handler:
@@ -60,7 +111,12 @@ reset_handler:
 
 ; Run =========================================================================
 start:
-
+; ADC init
+; ADEN - enable ADC
+; ADIE - allow interrupts
+; ADSC - start conversion
+; ADPS2..0 = 3 - clock divided by 8
+		outir ADCSRA, r16, 1 << ADEN | 1 << ADIE | 1 << ADSC | 0 << ADATE | 3 << ADPS0
 ; Infinity end loop ===========================================================
 		rjmp pc
 ;==============================================================================
