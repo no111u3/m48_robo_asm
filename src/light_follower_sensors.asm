@@ -1,5 +1,6 @@
 ;******************************************************************************
 .include "m48def.inc"
+.include "std/convert.inc"
 .include "std/io.inc"
 .include "std/ram.inc"
 .include "std/serial.inc"
@@ -21,6 +22,7 @@ adc_channels:
 ; Interrupt vector table ======================================================
 .define reti_dummy_use
 .define ADCC_int
+.define UTXC_int
 		int_vectors
 
 ; ADC Conversion Complete Handler ===============================
@@ -67,6 +69,43 @@ no_clear:
 		outir ADCSRA, r16, 1 << ADEN | 1 << ADIE | 1 << ADSC | 0 << ADATE | 3 << ADPS0
 ; restore registers, flags and exit
 		pop r17
+		pop zh
+		pop zl
+		popr16sr
+
+		reti
+
+; Transmit interrupt handler ==================================================
+UTXC_handler:
+		pushr16sr
+		push zl
+		push zh
+
+		uart_sends_invoke uart_sends, channel_values_msg
+
+		ldi zl, low(adc_channels)	; Get address of ADC channel storage
+		ldi zh, high(adc_channels)
+
+print_values:
+		ld r16, z				; load channel value
+		rcall bin_2_dec8		; convert from binary to decimal and ouput it
+								; to serial port
+		cpi zl, low(adc_channels+5)	; if channel is 5
+		brge exit				; exit
+
+		inc zl					; else increment channel
+		push zh					; store index register
+		push zl
+
+		uart_sends_invoke uart_sends, channel_delim_msg ; print delimiter
+		pop zl					; restore index register
+		pop zh
+
+		rjmp print_values		; print next channels
+
+exit:
+		uart_sends_invoke uart_sends, new_line ; print new line
+
 		pop zh
 		pop zl
 		popr16sr
@@ -128,12 +167,18 @@ uart_sendb_def r16, r21
 ; uart send string function
 uart_sends:
 uart_send_fstring_def r16, uart_sendb
+; display 8-bit dec
+bin_2_dec8:
+	clr r17
+; display 16-bit dec
+bin_2_dec16:
+bin_to_dec_def r16, r17, r18, r19, r20, r22, uart_sendb
 
 start_msg:
 	.db "Light Follower Sensors demo", 0xd, 0xa, 0
-channel_sel_msg:
+channel_values_msg:
 	.db "ADC channels values: ", 0
-channel_sel_msg_2:
+channel_delim_msg:
 	.db ", ", 0
 new_line:
 	.db 0xd, 0xa, 0
